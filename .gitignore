@@ -1,0 +1,9 @@
+.idea/
+.venv/
+logs/
+*.cfg
+*.db
+*.pid
+config.yaml
+webserver_config.py
+paths.py
