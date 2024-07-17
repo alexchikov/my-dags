@@ -15,7 +15,7 @@ default_args = {'retries': 5,
                 'depends_on_past': False,
                 'retry_delay': datetime.timedelta(minutes=5),
                 'owner': 'alexchikov'}
-with open(os.environ['HOME']+pth.CONFIG_PATH) as file:
+with open(pth.CONFIG_PATH) as file:
     config_file = yaml.safe_load(file)
 
 with DAG(dag_id='test_dag',
