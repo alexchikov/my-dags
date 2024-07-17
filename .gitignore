@@ -1,6 +1,7 @@
 .idea/
 .venv/
 logs/
+files/
 *.cfg
 *.db
 *.pid
