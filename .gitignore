@@ -2,6 +2,7 @@
 .venv/
 logs/
 files/
+__pycache__/
 *.cfg
 *.db
 *.pid
