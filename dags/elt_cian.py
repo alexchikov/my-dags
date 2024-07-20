@@ -1,3 +1,5 @@
+import sys
+
 from airflow.decorators import dag, task
 from utils.paths import Paths as pth
 from notifiers.tg import TelegramNotifier
@@ -33,7 +35,9 @@ with open(pth.CONFIG_PATH) as cnf_file:
                                           conf['CHAT_ID']))
 def elt_cian():
     logger = logging.getLogger(__name__)
-    @task(multiple_outputs=True, show_return_value_in_logs=False)
+    @task(task_id='ger_orders',
+          multiple_outputs=True,
+          show_return_value_in_logs=False)
     def get_orders(cookies: dict, headers: dict, json_data: dict) -> dict:
         response = requests.post(
             'https://api.cian.ru/search-offers/v2/search-offers-desktop/',
@@ -45,7 +49,16 @@ def elt_cian():
         data = response.json()
         return data
 
-    @task
+    @task(task_id='dq_check')
+    def dq_check(data: dict) -> dict:
+        data_size = sys.getsizeof(data)
+        logger.info(data_size)
+        if 0 <= data_size <= 20:
+            raise ValueError('data failed dq check')
+        else:
+            return data
+
+    @task(task_id='save_to_s3')
     def save_to_s3(data: dict) -> None:
         s3 = boto3.client('s3',
                           aws_access_key_id=conf['my_key'],
@@ -59,7 +72,7 @@ def elt_cian():
         else:
             raise BrokenPipeError('wrong data type input')
 
-    save_to_s3(get_orders(conf['cookies'], conf['headers'], conf['json_data']))
+    save_to_s3(dq_check(get_orders(conf['cookies'], conf['headers'], conf['json_data'])))
 
 
 elt_cian()
