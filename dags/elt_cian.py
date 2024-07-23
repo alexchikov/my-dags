@@ -1,9 +1,8 @@
-import sys
-
 from airflow.decorators import dag, task
 from utils.paths import Paths as pth
 from notifiers.tg import TelegramNotifier
 from datetime import datetime, timedelta
+import sys
 import boto3
 import yaml
 import requests
